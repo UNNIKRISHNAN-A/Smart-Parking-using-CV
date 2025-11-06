@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Parking Vehicle Search</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.2.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #3a7bd5;
+            --primary-dark: #2e5ea8;
+            --secondary: #00d2ff;
+            --accent: #6f42c1;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --success: #20bf55;
+            --danger: #eb3f5d;
+            --white: #ffffff;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.08), 0 6px 6px rgba(0,0,0,0.1);
+            --hover-shadow: 0 14px 28px rgba(0,0,0,0.15), 0 10px 10px rgba(0,0,0,0.12);
+            --slot-highlight: #ffef5a;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 3rem 0;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+        }
+        
+        h1 {
+            font-weight: 800;
+            color: var(--primary-dark);
+            margin-bottom: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            letter-spacing: -0.5px;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+        
+        h1:after {
+            content: '';
+            position: absolute;
+            width: 60%;
+            height: 4px;
+            bottom: 0;
+            left: 20%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+        .navbar-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px;
+            gap: 20px;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .nav-btn {
+            padding: 15px 30px;
+            background: white;
+            color: #1e3a8a;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            border: none;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-btn.active {
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        .title-container {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .search-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 40px;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .search-container:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+        }
+        
+        .form-control {
+            border-radius: 12px 0 0 12px;
+            border: none;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            background-color: #f5f7fa;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 60px;
+        }
+        
+        .form-control:focus {
+            background-color: var(--white);
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 0 12px 12px 0;
+            padding: 15px 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            height: 60px;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 7px 14px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .result-count {
+            font-size: 1.2rem;
+            color: var(--dark);
+            font-weight: 500;
+            margin-top: 20px;
+            padding-left: 15px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .result-count:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            transition: all 0.4s ease;
+            transform-origin: center;
+            animation: fadeIn 0.6s ease-out;
+            background: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .card-header {
+            background: linear-gradient(to right, rgba(58, 123, 213, 0.9), rgba(0, 210, 255, 0.9));
+            color: white;
+            padding: 20px 25px;
+            font-weight: 700;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .badge {
+            padding: 10px 15px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-radius: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .bg-success {
+            background: var(--success) !important;
+        }
+        
+        .bg-secondary {
+            background: #6c757d !important;
+        }
+        
+        .card-body {
+            padding: 25px;
+            background-color: var(--white);
+        }
+        
+        .info-item {
+            margin-bottom: 18px;
+            font-size: 1.05rem;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-item:hover {
+            background-color: rgba(242, 242, 242, 0.7);
+        }
+        
+        .info-item i {
+            font-size: 1.2rem;
+            margin-right: 15px;
+            width: 25px;
+            text-align: center;
+            color: var(--primary);
+        }
+        
+        .slot-highlight {
+            background-color: rgba(255, 239, 90, 0.2);
+            border-left: 4px solid var(--slot-highlight);
+            font-weight: 600;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        #loading-spinner {
+            display: none;
+            margin-left: 10px;
+            color: white;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                padding: 1.5rem 0;
+            }
+            
+            .search-container {
+                padding: 25px;
+            }
+            
+            .form-control, .btn-primary {
+                padding: 12px 15px;
+                height: 55px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .badge {
+                margin-top: 10px;
+                align-self: flex-start;
+            }
+        }
+        
+        /* Empty state styling */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0aec0;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .empty-state i {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            color: #cbd5e0;
+            animation: shake 2s ease-in-out infinite;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar-container">
+        <div class="navbar">
+            <a href="http://localhost:9854/" class="nav-btn  ">Parking Slot</a>
+            <a href="http://localhost:9871/" class="nav-btn active">Vehicle Search</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="title-container animate__animated animate__fadeInDown">
+            <h1>Smart Parking Vehicle Search</h1>
+        </div>
+        
+        <div class="search-container animate__animated animate__fadeInUp">
+            <form id="search-form" class="mb-4">
+                <div class="input-group">
+                    <input type="text" id="vehicle-number" class="form-control" placeholder="Enter vehicle number..." required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i> Search
+                        <div id="loading-spinner" class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                </div>
+            </form>
+            <div class="result-count" id="result-count"></div>
+        </div>
+        
+        <div id="search-results">
+            <div class="row" id="vehicles-container"></div>
+            <div id="empty-state" class="empty-state" style="display:none;">
+                <i class="fas fa-car-side"></i>
+                <h3>No vehicles found</h3>
+                <p>Try searching with a different vehicle number</p>
+            </div>
+        </div>
+    </div>
+
+    <template id="vehicle-template">
+        <div class="col-md-6 col-lg-4">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="vehicle-number mb-0"></h5>
+                    <span class="badge ev-badge"></span>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <i class="fas fa-ticket-alt"></i> 
+                        <span>Entry ID: <span class="entry-id"></span></span>
+                    </div>
+                    <div class="info-item slot-highlight">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Parking Slot: <span class="slot-number"></span></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="far fa-clock"></i>
+                        <span>Entry Time: <span class="entry-time"></span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAllVehicles();
+        
+            const searchForm = document.getElementById('search-form');
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                searchVehicle();
+            });
+            
+            setupRealtimeUpdates();
+        });
+        
+        function searchVehicle() {
+            const vehicleNumber = document.getElementById('vehicle-number').value.trim();
+            if (!vehicleNumber) return;
+        
+            const loadingSpinner = document.getElementById('loading-spinner');
+            loadingSpinner.style.display = 'inline-block';
+        
+            const formData = new FormData();
+            formData.append('vehicle_number', vehicleNumber);
+        
+            fetch('/search', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                displayVehicles(data.results);
+                loadingSpinner.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingSpinner.style.display = 'none';
+                alert('An error occurred while searching for the vehicle.');
+            });
+        }
+        
+        function loadAllVehicles() {
+            const loadingSpinner = document.getElementById('loading-spinner');
+            loadingSpinner.style.display = 'inline-block';
+            
+            fetch('/api/vehicles')
+            .then(response => response.json())
+            .then(data => {
+                displayVehicles(data.results);
+                loadingSpinner.style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error loading vehicles:', error);
+                loadingSpinner.style.display = 'none';
+            });
+        }
+        
+        function displayVehicles(vehicles) {
+            const container = document.getElementById('vehicles-container');
+            const template = document.getElementById('vehicle-template');
+            const resultCount = document.getElementById('result-count');
+            const emptyState = document.getElementById('empty-state');
+            
+            container.innerHTML = '';
+            
+            if (vehicles.length > 0) {
+                resultCount.textContent = `Found ${vehicles.length} vehicle(s)`;
+                emptyState.style.display = 'none';
+            } else {
+                resultCount.textContent = 'No vehicles found';
+                emptyState.style.display = 'block';
+            }
+            
+            vehicles.forEach((vehicle, index) => {
+                const vehicleElement = template.content.cloneNode(true);
+                
+                vehicleElement.querySelector('.vehicle-number').textContent = vehicle.vehicle_number;
+                vehicleElement.querySelector('.entry-id').textContent = vehicle.entry_id;
+                vehicleElement.querySelector('.slot-number').textContent = vehicle.slot_number;
+                vehicleElement.querySelector('.entry-time').textContent = vehicle.entry_time;
+                
+                const evBadge = vehicleElement.querySelector('.ev-badge');
+                if (vehicle.is_ev === 1) {
+                    evBadge.classList.add('bg-success');
+                    evBadge.innerHTML = '<i class="fas fa-bolt me-1"></i> Electric Vehicle';
+                } else {
+                    evBadge.classList.add('bg-secondary');
+                    evBadge.innerHTML = '<i class="fas fa-gas-pump me-1"></i> Regular Vehicle';
+                }
+                
+                const card = vehicleElement.querySelector('.card');
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                container.appendChild(vehicleElement);
+            });
+        }
+        
+        function setupRealtimeUpdates() {
+            const pollingInterval = 5000; // 5 seconds
+            
+            function pollForUpdates() {
+                fetch('/api/vehicles/updates?timestamp=' + Date.now())
+                .then(response => response.json())
+                .then(data => {
+                    if (data.hasUpdates) {
+                        loadAllVehicles();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking for updates:', error);
+                });
+            }
+            
+            setInterval(pollForUpdates, pollingInterval);
+            
+            setupWebSocketUpdates();
+        }
+        
+        function setupWebSocketUpdates() {
+            if ('WebSocket' in window) {
+                const socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + 
+                                             window.location.host + '/ws/vehicles');
+                
+                socket.addEventListener('open', function (event) {
+                    console.log('WebSocket connection established');
+                });
+                
+                socket.addEventListener('message', function (event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.type === 'vehicle_updated') {
+                            loadAllVehicles();
+                            
+                            showNotification(data.type, data.message);
+                        }
+                    } catch (error) {
+                        console.error('Error processing WebSocket message:', error);
+                    }
+                });
+                
+                socket.addEventListener('close', function (event) {
+                    console.log('WebSocket connection closed');
+                    
+                    setTimeout(setupWebSocketUpdates, 3000);
+                });
+                
+                socket.addEventListener('error', function (event) {
+                    console.error('WebSocket error:', event);
+                    
+                    setInterval(pollForUpdates, 5000);
+                });
+            } else {
+                console.log('WebSocket not supported. Using polling for updates instead.');
+            }
+        }
+        
+        function showNotification(type, message) {
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-info notification fade-in';
+            
+            let notificationMessage = '';
+            
+            switch (type) {
+                case 'vehicle_updated':
+                    notification.className = 'alert alert-info notification fade-in';
+                    notificationMessage = 'Vehicle information updated';
+                    break;
+                default:
+                    notificationMessage = message || 'Data updated';
+            }
+            
+            notification.textContent = notificationMessage;
+            
+            const notificationContainer = document.getElementById('notification-container') || document.body;
+            notificationContainer.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => {
+                    notification.remove();
+                }, 500);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

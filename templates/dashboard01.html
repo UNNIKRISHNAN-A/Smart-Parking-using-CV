@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Parking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .header-gradient {
+            background: linear-gradient(90deg, #4c6ef5, #3b5bdb);
+        }
+        .stat-card {
+            border-radius: 0.75rem;
+            border-left: 4px solid;
+        }
+        .parking-card {
+            border-left-color: #4c6ef5;
+        }
+        .ev-card {
+            border-left-color: #f59f00;
+        }
+        .form-card {
+            border-left-color: #37b24d;
+        }
+        .search-card {
+            border-left-color: #495057;
+        }
+        .form-input, .form-select {
+            transition: all 0.2s ease;
+            border: 1px solid #dee2e6;
+        }
+        .form-input:focus, .form-select:focus {
+            border-color: #4c6ef5;
+            box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.25);
+        }
+        .btn {
+            transition: all 0.2s ease;
+        }
+        .vehicle-plate {
+            background: linear-gradient(45deg, #e9ecef, #f8f9fa);
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-family: monospace;
+            font-weight: bold;
+        }
+        .table-header {
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto px-4 py-8">
+        <div class="dashboard-container bg-white">
+            <div class="px-8 py-6 header-gradient text-white">
+                <div class="flex items-center">
+                    <i class="fas fa-car-side text-3xl mr-4"></i>
+                    <h1 class="text-3xl font-bold">Smart Parking System</h1>
+                </div>
+                <p class="text-blue-100 mt-2">Real-time parking management dashboard</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6 p-8">
+                <div class="stat-card parking-card bg-blue-50 p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-100 p-3 rounded-full">
+                            <i class="fas fa-parking text-blue-600"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold ml-3 text-gray-800">Parking Overview</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-600">Total Slots</p>
+                            <p class="text-3xl font-bold text-blue-600" id="totalSlots">14</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-600">Available</p>
+                            <div class="flex items-center">
+                                <p class="text-3xl font-bold text-green-600" id="availableSlots">-</p>
+                                <i class="fas fa-check-circle ml-2 text-green-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card ev-card bg-yellow-50 p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-yellow-100 p-3 rounded-full">
+                            <i class="fas fa-charging-station text-yellow-600"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold ml-3 text-gray-800">EV Stations</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-600">Total EV Slots</p>
+                            <p class="text-3xl font-bold text-yellow-600" id="totalEVSlots">5</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <p class="text-sm text-gray-600">Available EV</p>
+                            <div class="flex items-center">
+                                <p class="text-3xl font-bold text-green-600" id="availableEVSlots">-</p>
+                                <i class="fas fa-bolt ml-2 text-yellow-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card form-card bg-green-50 p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i class="fas fa-plus-circle text-green-600"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold ml-3 text-gray-800">Add Parking Entry</h2>
+                    </div>
+                    <form id="parkingEntryForm" class="space-y-3">
+                        <div>
+                            <input type="text" placeholder="Plate Number" required 
+                                class="form-input w-full p-2.5 rounded-lg focus:outline-none" id="plateNumber">
+                        </div>
+                        <div class="flex items-center mb-2">
+                            <label class="inline-flex items-center p-2 bg-white rounded-lg shadow-sm mr-2">
+                                <input type="checkbox" id="isEV" class="w-4 h-4 mr-2">
+                                <span>EV Slot</span>
+                            </label>
+                            <select class="form-select flex-grow p-2.5 rounded-lg focus:outline-none" id="parkingSlot" required>
+                                <option value="">Select Slot</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn w-full bg-green-500 text-white p-2.5 rounded-lg hover:bg-green-600 shadow-sm font-medium" id="submitBtn">
+                            <i class="fas fa-car-side mr-2"></i>Add Entry
+                        </button>
+                    </form>
+                    <div id="entryMessage" class="hidden mt-3 p-2 bg-green-100 text-green-700 rounded-lg text-center">
+                        <i class="fas fa-check-circle mr-1"></i>Entry Added Successfully!
+                    </div>
+                </div>
+
+                <div class="stat-card search-card bg-gray-50 p-6 shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-gray-200 p-3 rounded-full">
+                            <i class="fas fa-search text-gray-700"></i>
+                        </div>
+                        <h2 class="text-xl font-semibold ml-3 text-gray-800">Search Entries</h2>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <input type="text" placeholder="Search by Plate or Slot" 
+                                class="form-input w-full p-2.5 rounded-lg focus:outline-none" id="searchInput">
+                        </div>
+                        <div class="flex justify-between">
+                            <button id="clearSearchBtn" class="btn bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 font-medium text-sm">
+                                <i class="fas fa-times mr-1"></i>Clear
+                            </button>
+                            <div>
+                                <label class="flex items-center bg-white p-2 rounded-lg shadow-sm">
+                                    <input type="checkbox" id="showEVOnlyFilter" class="w-4 h-4 mr-2">
+                                    <span class="text-sm">Show EV Only</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-8 pb-8">
+                <div class="flex items-center mb-4">
+                    <div class="bg-indigo-100 p-3 rounded-full">
+                        <i class="fas fa-list text-indigo-600"></i>
+                    </div>
+                    <h2 class="text-xl font-semibold ml-3 text-gray-800">Parking Entries</h2>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-lg shadow-sm">
+                    <table class="w-full" id="parkingEntriesTable">
+                        <thead>
+                            <tr class="table-header">
+                                <th class="p-4 text-left text-gray-700 font-semibold">ID</th>
+                                <th class="p-4 text-left text-gray-700 font-semibold">Plate Number</th>
+                                <th class="p-4 text-left text-gray-700 font-semibold">Timestamp</th>
+                                <th class="p-4 text-left text-gray-700 font-semibold">Parking Slot</th>
+                                <th class="p-4 text-left text-gray-700 font-semibold">EV Slot</th>
+                                <th class="p-4 text-left text-gray-700 font-semibold">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="parkingEntriesBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const parkingEntryForm = document.getElementById('parkingEntryForm');
+            const parkingEntriesBody = document.getElementById('parkingEntriesBody');
+            const searchInput = document.getElementById('searchInput');
+            const clearSearchBtn = document.getElementById('clearSearchBtn');
+            const showEVOnlyFilter = document.getElementById('showEVOnlyFilter');
+            const availableSlotsElement = document.getElementById('availableSlots');
+            const totalSlotsElement = document.getElementById('totalSlots');
+            const totalEVSlotsElement = document.getElementById('totalEVSlots');
+            const availableEVSlotsElement = document.getElementById('availableEVSlots');
+            const submitBtn = document.getElementById('submitBtn');
+            const entryMessage = document.getElementById('entryMessage');
+            const isEVCheckbox = document.getElementById('isEV');
+            const parkingSlotSelect = document.getElementById('parkingSlot');
+    
+            // Configuration
+            const totalSlots = 14;  // Total slots
+            const totalEVSlots = 5;  // EV slots
+            const totalRegularSlots = totalSlots - totalEVSlots; // Regular slots = 9
+            let currentEntries = [];
+            let occupiedSlots = {};  // Track which slots are occupied
+            
+            // Function to update parking slot options based on EV checkbox state
+            function updateParkingSlotOptions() {
+                const isEV = isEVCheckbox.checked;
+                const currentValue = parkingSlotSelect.value;
+                parkingSlotSelect.innerHTML = '<option value="">Select Slot</option>';
+                
+                if (isEV) {
+                    // Add available EV slot options (EV1-EV5)
+                    for (let i = 1; i <= totalEVSlots; i++) {
+                        const slotName = `EV${i}`;
+                        if (!occupiedSlots[slotName]) {
+                            const option = document.createElement('option');
+                            option.value = slotName;
+                            option.textContent = slotName;
+                            parkingSlotSelect.appendChild(option);
+                        }
+                    }
+                } else {
+                    // Add available regular slot options (A1-A9)
+                    for (let i = 1; i <= totalRegularSlots; i++) {
+                        const slotName = `A${i}`;
+                        if (!occupiedSlots[slotName]) {
+                            const option = document.createElement('option');
+                            option.value = slotName;
+                            option.textContent = slotName;
+                            parkingSlotSelect.appendChild(option);
+                        }
+                    }
+                }
+                
+                // Try to restore the previous value if possible
+                if (currentValue) {
+                    for (let i = 0; i < parkingSlotSelect.options.length; i++) {
+                        if (parkingSlotSelect.options[i].value === currentValue) {
+                            parkingSlotSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Initialize parking slot options
+            updateParkingSlotOptions();
+            
+            // Update options when EV checkbox changes
+            isEVCheckbox.addEventListener('change', updateParkingSlotOptions);
+    
+            function filterEntries() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const showEVOnly = showEVOnlyFilter.checked;
+                
+                let filteredEntries = [...currentEntries];
+                
+                if (searchTerm) {
+                    filteredEntries = filteredEntries.filter(entry => 
+                        entry.vehicle_number.toLowerCase().includes(searchTerm) || 
+                        entry.slot_number.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                if (showEVOnly) {
+                    filteredEntries = filteredEntries.filter(entry => entry.is_ev && entry.slot_number.startsWith('EV'));
+                }
+                
+                renderParkingEntries(filteredEntries);
+            }
+            
+            // Search input event listener
+            searchInput.addEventListener('input', filterEntries);
+            
+            // EV filter checkbox event listener
+            showEVOnlyFilter.addEventListener('change', filterEntries);
+            
+            // Clear search button event listener
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                showEVOnlyFilter.checked = false;
+                filterEntries();
+            });
+            
+            function renderParkingEntries(entries) {
+                parkingEntriesBody.innerHTML = entries.map(entry => `
+                    <tr id="entry-${entry.entry_id}" class="${entry.is_ev && entry.slot_number.startsWith('EV') ? 'bg-blue-50' : ''} border-b border-gray-100">
+                        <td class="p-4 text-gray-500">#${entry.entry_id}</td>
+                        <td class="p-4">
+                            <span class="vehicle-plate">${entry.vehicle_number}</span>
+                        </td>
+                        <td class="p-4 text-gray-600">${formatTimestamp(entry.entry_time)}</td>
+                        <td class="p-4">
+                            <span class="inline-block px-3 py-1 rounded-full ${entry.slot_number.startsWith('EV') ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'}">
+                                ${entry.slot_number}
+                            </span>
+                        </td>
+                        <td class="p-4">
+                            ${entry.is_ev && entry.slot_number.startsWith('EV') ? 
+                                `<span class="inline-flex items-center px-2.5 py-1 rounded-full bg-green-100 text-green-800">
+                                    <i class="fas fa-bolt mr-1"></i> Yes
+                                </span>` : 
+                                `<span class="text-gray-500">No</span>`
+                            }
+                        </td>
+                        <td class="p-4">
+                            <button onclick="removeEntry(${entry.entry_id})" class="btn bg-red-500 text-white px-3 py-1.5 rounded-lg hover:bg-red-600">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+            function formatTimestamp(timestamp) {
+    if (!timestamp) return 'No date';
+    
+    try {
+        let date;
+        
+        // Handle different timestamp formats
+        if (typeof timestamp === 'string') {
+            // If it's a string, try to parse it
+            date = new Date(timestamp);
+        } else if (typeof timestamp === 'number') {
+            // If it's a number, check if it's in seconds or milliseconds
+            // Timestamps in seconds are typically less than 10^10
+            if (timestamp < 10000000000) {
+                date = new Date(timestamp * 1000); // Convert seconds to milliseconds
+            } else {
+                date = new Date(timestamp); // Already in milliseconds
+            }
+        } else {
+            date = new Date(timestamp);
+        }
+        
+        // Check if the date is valid
+        if (isNaN(date.getTime())) {
+            console.error('Invalid timestamp:', timestamp);
+            return 'Invalid date';
+        }
+        
+        // Manually add 5 hours 30 minutes for IST (+5:30)
+        const istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours in milliseconds
+        const istDate = new Date(date.getTime() + istOffset);
+        
+        // Format the adjusted date
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true // 12-hour format with AM/PM
+        };
+        
+        return istDate.toLocaleString('en-US', options) + ' IST';
+        
+    } catch (error) {
+        console.error('Error formatting timestamp:', error, timestamp);
+        return 'Date error';
+    }
+}
+    
+            async function fetchParkingEntries() {
+                try {
+                    const response = await fetch('/parking-entries');
+                    if (!response.ok) throw new Error("Failed to fetch entries");
+    
+                    currentEntries = await response.json();
+                    
+                    // Reset occupied slots tracking
+                    occupiedSlots = {};
+                    
+                    // Track occupied slots for slot selection efficiency
+                    currentEntries.forEach(entry => {
+                        occupiedSlots[entry.slot_number] = true;
+                    });
+    
+                    // Calculate occupied slots correctly
+                    const occupiedEVSlots = currentEntries.filter(entry => 
+                        entry.slot_number.startsWith('EV')).length;
+                    
+                    // Update available slots count
+                    availableSlotsElement.textContent = totalSlots - currentEntries.length;
+                    totalSlotsElement.textContent = totalSlots;
+                    totalEVSlotsElement.textContent = totalEVSlots;
+                    availableEVSlotsElement.textContent = totalEVSlots - occupiedEVSlots;
+                    
+                    // Update parking slot options based on newly occupied slots
+                    updateParkingSlotOptions();
+    
+                    // Apply any active filters
+                    filterEntries();
+    
+                } catch (error) {
+                    console.error('Error fetching entries:', error);
+                    // Show a user-friendly error message
+                    const errorMsg = `
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-red-500">
+                                <i class="fas fa-exclamation-circle mr-2"></i>
+                                Unable to load parking entries. Please try again later.
+                            </td>
+                        </tr>
+                    `;
+                    parkingEntriesBody.innerHTML = errorMsg;
+                }
+            }
+    
+            parkingEntryForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const plateNumber = document.getElementById('plateNumber').value.trim();
+                const parkingSlot = parkingSlotSelect.value.trim();
+                const isEV = isEVCheckbox.checked;
+                
+                if (!plateNumber || !parkingSlot) {
+                    alert("Please fill in all required fields");
+                    return;
+                }
+                
+                // Disable submission while processing
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
+    
+                try {
+                    const response = await fetch('/parking-entries', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            vehicle_number: plateNumber, 
+                            slot_number: parkingSlot, 
+                            is_ev: isEV && parkingSlot.startsWith('EV')
+                        })
+                    });
+    
+                    const result = await response.json();
+    
+                    if (response.ok) {
+                        // Mark the slot as occupied immediately
+                        occupiedSlots[parkingSlot] = true;
+                        
+                        // Reset form
+                        parkingEntryForm.reset();
+                        updateParkingSlotOptions();
+                        
+                        // Show success message
+                        entryMessage.classList.remove('hidden');
+                        setTimeout(() => entryMessage.classList.add('hidden'), 3000);
+                        
+                        // Update entries
+                        fetchParkingEntries();
+                    } else {
+                        alert(result.error || "Failed to add entry");
+                    }
+                } catch (error) {
+                    console.error("Error adding entry:", error);
+                    alert("Server error! Try again later.");
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-car-side mr-2"></i>Add Entry';
+                }
+            });
+    
+            // Remove entry function
+            window.removeEntry = async (entryId) => {
+                if (confirm("Are you sure you want to remove this entry?")) {
+                    try {
+                        const response = await fetch(`/parking-entries/${entryId}`, {
+                            method: 'DELETE'
+                        });
+    
+                        if (response.ok) {
+                            // Find the entry being removed to free its slot
+                            const entry = currentEntries.find(e => e.entry_id === entryId);
+                            if (entry) {
+                                delete occupiedSlots[entry.slot_number];
+                            }
+                            
+                            // Update entries list
+                            fetchParkingEntries();
+                        } else {
+                            const result = await response.json();
+                            alert(result.error || "Failed to delete entry");
+                        }
+                    } catch (error) {
+                        console.error("Error removing entry:", error);
+                        alert("Server error! Try again later.");
+                    }
+                }
+            };
+    
+            // Initial fetch
+            fetchParkingEntries();
+            
+            // Reduced polling frequency to once every 5 seconds
+            setInterval(fetchParkingEntries, 5000);
+        });
+    </script>
+</body>
+</html>
