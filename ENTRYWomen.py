@@ -15,7 +15,7 @@ reader = easyocr.Reader(['en'], gpu=False)  # Disable GPU if not available
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",  
-    "password": "Unni2005!@#",  
+    "password": "...",  
     "database": "smart_parking",
 }
 

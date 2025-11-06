@@ -9,7 +9,7 @@ CORS(app)  # Enable CORS for AJAX requests
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",
-    "password": "Unni2005!@#",  # Update if needed
+    "password": "...",  # Update if needed
     "database": "smart_parking",
 }
 

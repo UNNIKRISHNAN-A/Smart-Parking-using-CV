@@ -14,7 +14,7 @@ reader = easyocr.Reader(['en'])
 DB_CONFIG = {
     "host": "localhost",
     "user": "root",  
-    "password": "Unni2005!@#",  
+    "password": "...",  
     "database": "smart_parking",
 }
 
